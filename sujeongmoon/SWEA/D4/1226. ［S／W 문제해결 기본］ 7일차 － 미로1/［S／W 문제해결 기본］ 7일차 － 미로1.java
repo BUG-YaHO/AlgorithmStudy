@@ -1,6 +1,9 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
 
+// 메모리:  
+// 실행시간: 
 public class Solution {
 	
 	static int[] dr = new int[] {1, 0, -1, 0};
@@ -36,7 +39,7 @@ public class Solution {
 				}
 			}
 			
-			dfs(start[0], start[1]);
+			bfs(start[0], start[1]);
 			
 			sb.append("#").append(t).append(" ").append(answer).append("\n");
 		}
@@ -45,27 +48,40 @@ public class Solution {
 		
 	}
 
-	private static void dfs(int r, int c) {
+	private static void bfs(int r, int c) {
 		
-		if (r < 0 || c < 0 || r >= 16 || c >= 16) {
-			return;
-		}
-		
-		if (arr[r][c] == 1 || isVisited[r][c]) {
-			return;
-		}
-		
-		if (arr[r][c] == 3) {
-			answer = 1;
-			return;
-		}
-		
+		ArrayDeque<int[]> queue = new ArrayDeque<>();
+		queue.offer(new int[] {r, c});
 		isVisited[r][c] = true;
-		for (int i = 0; i < 4; i++) {
-			dfs(r+dr[i], c+dc[i]);
-		}
-		isVisited[r][c] = false;
 		
+		while (!queue.isEmpty()) {
+			int[] now = queue.poll();
+			int nowR = now[0];
+			int nowC = now[1];
+			
+			
+			if (arr[nowR][nowC] == 3) {
+				answer = 1;
+				break;
+			}
+			
+			for (int i = 0; i < 4; i++) {
+				int nextR = nowR + dr[i];
+				int nextC = nowC + dc[i];
+				
+				if (nextR < 0 || nextC < 0 || nextR >= 16 || nextC >= 16) {
+					continue;
+				}
+				if (isVisited[nextR][nextC] || arr[nextR][nextC] == 1) {
+					continue;
+				}
+				
+				isVisited[nextR][nextC] = true;
+				queue.offer(new int[] {nextR, nextC});
+			}
+			
+			
+		}
 	}
 
 }
