@@ -1,10 +1,7 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
-import java.util.Queue;
 
 public class Solution {
-
 	static int N = 16;
 	static int[][] arr;
 	static boolean[][] visit;
@@ -13,7 +10,6 @@ public class Solution {
 	static int result;
 
 	public static void main(String[] args) throws Exception {
-
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringBuilder sb = new StringBuilder();
 
@@ -39,7 +35,8 @@ public class Solution {
 			}
 
 			result = 0;
-			bfs(startX, startY);
+
+			dfs(startX, startY);
 
 			sb.append("#").append(tc).append(" ").append(result).append("\n");
 		}
@@ -47,41 +44,26 @@ public class Solution {
 		System.out.println(sb);
 	}
 
-	static void bfs(int startX, int startY) {
+	static void dfs(int x, int y) {
+		if (result == 1)
+			return;
 
-		Queue<int[]> queue = new ArrayDeque<>();
+		visit[x][y] = true;
 
-		queue.offer(new int[] { startX, startY });
-		visit[startX][startY] = true;
+		for (int next = 0; next < 4; next++) {
+			int nx = x + dx[next];
+			int ny = y + dy[next];
 
-		while (!queue.isEmpty()) {
-
-			int[] now = queue.poll();
-
-			int x = now[0];
-			int y = now[1];
-
-			for (int d = 0; d < 4; d++) {
-
-				int nx = x + dx[d];
-				int ny = y + dy[d];
-
-				if (nx < 0 || nx >= N || ny < 0 || ny >= N || visit[nx][ny] || arr[nx][ny] == 1) {
-					continue;
-				}
-
-				if (visit[nx][ny]) {
-					continue;
-				}
-
-				if (arr[nx][ny] == 3) {
-					result = 1;
-					return;
-				}
-
-				visit[nx][ny] = true;
-				queue.offer(new int[] { nx, ny });
+			if (nx < 0 || nx >= N || ny < 0 || ny >= N || visit[nx][ny] || arr[nx][ny] == 1) {
+				continue;
 			}
+
+			if (arr[nx][ny] == 3) {
+				result = 1;
+				return;
+			}
+
+			dfs(nx, ny);
 		}
 	}
 }
