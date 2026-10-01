@@ -1,0 +1,121 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+class Solution {
+	static final int[] DY = { 0, 0, -1, 1 };
+	static final int[] DX = { -1, 1, 0, 0 };
+
+	boolean isOnEdge(int N, int y, int x) {
+		return y == 0 || y == N-1 || x == 0 || x == N-1;
+	}
+
+	boolean overlaps(int a1, int a2, int b1, int b2) {
+		return a1 <= b2 && b1 <= a2;
+	}
+
+	boolean intersects(
+		int[] segY1, int[] segX1, int[] segY2, int[] segX2,
+		int segCount, int y1, int x1, int y2, int x2
+	) {
+		for (int i=0; i<segCount; ++i)
+			if (overlaps(segY1[i], segY2[i], y1, y2)
+					&& overlaps(segX1[i], segX2[i], x1, x2))
+				return true;
+		return false;
+	}
+
+	void dfs(
+		int[] coreY, int[] coreX,
+		int[] segY1, int[] segX1, int[] segY2, int[] segX2,
+		int[] best,
+		int N, int coreCount, int segCount, int idx, int count, int length
+	) {
+		int limit = count + (coreCount - idx);
+		if (limit < best[0]) return;
+		if (limit == best[0] && length >= best[1]) return;
+
+		if (idx == coreCount) {
+			if (count > best[0]
+					|| (count == best[0] && length < best[1])) {
+				best[0] = count;
+				best[1] = length;
+			}
+			return;
+		}
+
+		int y = coreY[idx], x = coreX[idx];
+		for (int i=0; i<4; ++i) {
+			int ey = y + DY[i] * (DY[i] < 0 ? y : N-1-y);
+			int ex = x + DX[i] * (DX[i] < 0 ? x : N-1-x);
+			int sy = y + DY[i], sx = x + DX[i];
+			int y1 = Math.min(sy, ey), y2 = Math.max(sy, ey);
+			int x1 = Math.min(sx, ex), x2 = Math.max(sx, ex);
+			if (intersects(segY1, segX1, segY2, segX2,
+					segCount, y1, x1, y2, x2))
+				continue;
+			segY1[segCount] = y1;
+			segX1[segCount] = x1;
+			segY2[segCount] = y2;
+			segX2[segCount] = x2;
+			dfs(coreY, coreX, segY1, segX1, segY2, segX2, best,
+					N, coreCount, segCount+1, idx+1, count+1,
+					length + Math.abs(ey-y) + Math.abs(ex-x));
+		}
+
+		dfs(coreY, coreX, segY1, segX1, segY2, segX2, best,
+				N, coreCount, segCount, idx+1, count, length);
+	}
+
+	String solveInner(BufferedReader br) throws IOException {
+		int N = Integer.parseInt(br.readLine().trim());
+		int[] coreY = new int[12];
+		int[] coreX = new int[12];
+		int coreCount = 0;
+		int[] segY1 = new int[24];
+		int[] segX1 = new int[24];
+		int[] segY2 = new int[24];
+		int[] segX2 = new int[24];
+		int segCount = 0;
+		for (int y=0; y<N; ++y) {
+			StringTokenizer st = new StringTokenizer(br.readLine());
+			for (int x=0; x<N; ++x) {
+				if (st.nextToken().charAt(0) == '0')
+					continue;
+				segY1[segCount] = y;
+				segY2[segCount] = y;
+				segX1[segCount] = x;
+				segX2[segCount] = x;
+				++segCount;
+				if (isOnEdge(N, y, x))
+					continue; 
+				coreY[coreCount] = y;
+				coreX[coreCount] = x;
+				++coreCount;
+			}
+		}
+
+		int[] best = new int[] { -1, 0 };
+		dfs(coreY, coreX, segY1, segX1, segY2, segX2, best,
+				N, coreCount, segCount, 0, 0, 0);
+		return Integer.toString(best[1]);
+	}
+
+	void solve() throws IOException {
+		BufferedReader br = new BufferedReader(
+				new InputStreamReader(System.in));
+		int T;
+		T = Integer.parseInt(br.readLine().trim());
+		StringBuilder sb = new StringBuilder();
+		for (int test_case = 1; test_case <= T; test_case++)
+			sb.append('#').append(test_case)
+					.append(' ').append(solveInner(br))
+					.append('\n');
+		System.out.print(sb);
+	}
+
+	public static void main(String args[]) throws Exception {
+		new Solution().solve();
+	}
+}
