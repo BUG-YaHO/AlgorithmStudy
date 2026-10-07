@@ -13,19 +13,19 @@ class Solution {
             parent[i] = i;
         }
 
-        int connectedEdges = 0;
+        int edges = 0;
 
         for (int[] cost : costs) {
-            if (connectedEdges == n - 1) break;
+            if (edges == n - 1) break;
 
-            int islandA = cost[0];
-            int islandB = cost[1];
-            int bridgeCost = cost[2];
+            int a = cost[0];
+            int b = cost[1];
+            int bridge = cost[2];
 
-            if (find(islandA) != find(islandB)) {
-                union(islandA, islandB);
-                answer += bridgeCost;
-                connectedEdges++;
+            if (find(a) != find(b)) {
+                union(a, b);
+                answer += bridge;
+                edges++;
             }
         }
 
